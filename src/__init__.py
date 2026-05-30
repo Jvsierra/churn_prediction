@@ -1,0 +1,1 @@
+from src.data_collection import get_input_data
