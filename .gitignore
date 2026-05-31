@@ -9,6 +9,10 @@ __pycache__/
 # Data source files
 *.csv
 
+# MlFLow
+mlruns/
+*.db
+
 # Distribution / packaging
 .Python
 build/

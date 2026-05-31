@@ -95,6 +95,7 @@ def train_xgboost(
 
     # ── MLflow run ─────────────────────────────────────────────────────────────
 
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
     mlflow.set_experiment(experiment_name)
 
     with mlflow.start_run(run_name=run_name) as run:
@@ -247,7 +248,7 @@ def predict_churn(
     })
 
     # ── MLflow logging ─────────────────────────────────────────────────────────
-
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
     mlflow.set_experiment(experiment_name)
 
     with mlflow.start_run(run_name=run_name or "inference"):

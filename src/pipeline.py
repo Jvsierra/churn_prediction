@@ -9,6 +9,8 @@ from src import (
     predict_churn
 )
 
+import mlflow
+
 def run_pipeline():
     # ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -27,6 +29,9 @@ def run_pipeline():
         "verbosity":        0,                # suppress XGBoost training logs
         "nthread":          -1,
     }
+
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_experiment(EXPERIMENT_NAME)
 
     # ── Step 0: Load data ──────────────────────────────────────────────────────────
 
@@ -117,8 +122,8 @@ def run_pipeline():
     print(f"\nRisk segment distribution:")
     print(scores_df["risk_segment"].value_counts().to_string())
 
-    scores_df.to_csv("predictions.csv", index=False)
-    print("\nPredictions saved to: predictions.csv")
+    scores_df.to_csv("./data/predictions.csv", index=False)
+    print("\nPredictions saved to: data/predictions.csv")
     print(f"MLflow UI: mlflow ui  →  http://localhost:5000  (experiment: {EXPERIMENT_NAME})")
 
 if __name__ == "__main__":
