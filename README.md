@@ -1,4 +1,4 @@
-# Churn Prediction — Telecom B2C
+# 📉 Churn Prediction — Telecom B2C
 
 > **Can we identify customers about to leave — before they do?**
 
@@ -6,7 +6,7 @@ A full-cycle machine learning project predicting customer churn for a B2C teleco
 
 ---
 
-## Business Objective
+## 🎯 Business Objective
 
 > *"Retaining a customer costs 5–10× less than acquiring a new one."*
 
@@ -19,7 +19,7 @@ The goal was to build a model that **proactively identifies at-risk customers** 
 
 ---
 
-## The Dataset
+## 📊 The Dataset
 
 | Property | Value |
 |---|---|
@@ -27,7 +27,7 @@ The goal was to build a model that **proactively identifies at-risk customers** 
 | Customers | 7,043 |
 | Features | 20 (demographic, behavioral, contractual) |
 | Target | Churn — Yes / No (26% / 74%) |
-| Class imbalance | Mild (26/74) |
+| Class imbalance | Mild (26/74) — no SMOTE needed |
 
 ---
 
@@ -51,77 +51,66 @@ Short tenure (< 12mo)    → Highest risk window for churn
 
 No long-term contract. No bundled services. No family plan. No friction to switching. This profile explained the majority of churners across all models.
 
-### Collinearity
+### Collinearity findings
 
 - `PhoneService` and `MultipleLines` are perfectly correlated by construction → dropped `PhoneService`
 - `TotalCharges` ≈ `tenure × MonthlyCharges` → structurally redundant
 
 ---
 
-## Models Tested
+## 🤖 Models Tested
 
-Five algorithms were evaluated using **stratified 5-fold cross-validation**, with PR-AUC as the primary metric (more reliable than accuracy or ROC-AUC for imbalanced classes).
+Five algorithms were evaluated using **stratified 5-fold cross-validation** with one-hot encoding applied inside the CV loop (fitted only on the training fold to prevent data leakage). PR-AUC was used as the primary metric — more reliable than accuracy or ROC-AUC for imbalanced classes.
 
-| Model | Val PR-AUC | Val Recall | Val Precision | Overfitting |
-|---|---|---|---|---|
-| Logistic Regression | 0.65 | 0.79 | 0.51 | None |
-| Random Forest | **0.67** | 0.79 | 0.52 | Minimal |
-| LightGBM | 0.67 | 0.50 | **0.65** | Moderate |
-| XGBoost | 0.66 | 0.77 | 0.51 | Moderate |
-| SVM | 0.57 | 0.77 | 0.49 | Low |
+### Results
 
-### Why not LightGBM (highest PR-AUC)?
+| Model | Train PR-AUC | Val PR-AUC | Val Recall | Val Precision | Val F1 |
+|---|---|---|---|---|---|
+| Logistic Regression | 0.647 | 0.645 | **0.795** | 0.515 | 0.625 |
+| Random Forest | 0.711 | 0.653 | 0.777 | **0.532** | **0.632** |
+| LightGBM | **0.758** | **0.656** | 0.774 | 0.526 | 0.626 |
+| XGBoost | 0.726 | 0.649 | 0.791 | 0.520 | 0.627 |
+| SVM | 0.647 | 0.579 | 0.788 | 0.509 | 0.619 |
 
-LightGBM achieved higher precision (65%) but only 50% recall — **it missed more than half of actual churners**. In a context where the operational cost of a retention action is low, recall matters more than precision.
-
+### The leakage lesson
 ---
 
-## The Chosen Model: Random Forest
+## ✅ The Chosen Model: XGBoost
 
 ```
-Best PR-AUC (excluding LightGBM)  ✓
-Highest ROC-AUC                   ✓
-Highest F1-Score                  ✓
-Minimal train/val gap             ✓
-No resampling needed              ✓
-Explainable via SHAP              ✓
+Had similar technical metrics scores and better business KPIs scores.
 ```
 
 ### Decision rationale
 
-> *"When simpler and more complex models perform similarly, always prefer the simpler one."*
+All models converged to near-identical validation metrics. The XGBoost was chosen for its best PR-AUC and strongest business impact in the simulation.
 
-All models converged to similar validation performance (~0.65 PR-AUC), indicating the dataset's predictive ceiling was reached. The Random Forest offered the best trade-off between performance, stability, and interpretability.
+Logistic Regression and SVM produced **zero churners avoided** in the business simulation at threshold=0.5, making them unsuitable for the operational context despite similar PR-AUC scores.
 
 ---
 
-## 💼 Business Impact (Holdout Simulation)
+## 💼 Business Impact Simulation
 
-Evaluated on a **20% holdout set** never seen during training. Retention simulation: 30% save rate, $15 cost per action.
+Evaluated on the last CV fold (holdout-equivalent). Retention simulation: 30% save rate, $15 cost per action, threshold=0.5.
 
-| Model | Churners Avoided | Churn Rate ↓ | MRR Retained | ROI |
+| Model | Churners Avoided | Churn Rate | MRR Retained | MRR Lost | LTV Total |
+|---|---|---|---|---|---|
+| Baseline (no action) | 0 | 26.56% | $60,906 | $27,760 | $3,050,229 |
+| Logistic Regression | 0 | 26.56% | $60,906 | $27,760 | $3,050,229 |
+| Random Forest | 86 | 20.45% | $67,415 | $21,251 | $3,056,738 |
+| LightGBM | 86 | 20.45% | $67,436 | $21,231 | $3,056,758 |
+| **XGBoost** | **87** | **20.38%** | **$67,595** | **$21,071** | **$3,056,918** |
+| SVM | 0 | 26.56% | $60,906 | $27,760 | $3,050,229 |
+
+### Delta vs. Baseline
+
+| Model | Churners Avoided | Churn Rate ↓ | MRR Retained ↑ | LTV ↑ |
 |---|---|---|---|---|
-| Baseline (no action) | 0 | 26.5% | $63,102 | — |
-| Logistic Regression | 49 | 23.8% | $69,843 | 5.65× |
-| **Random Forest** | **51** | **23.7%** | **$70,412** | **5.71×** |
-| LightGBM | 28 | 25.1% | $66,178 | 6.03× |
-| XGBoost | 49 | 23.8% | $69,843 | 5.65× |
+| Random Forest | 86 | −6.11pp | +$6,509 | +$6,509 |
+| LightGBM | 86 | −6.11pp | +$6,529 | +$6,529 |
+| **XGBoost** | **87** | **−6.18pp** | **+$6,689** | **+$6,689** |
 
-**Random Forest saved the most MRR ($70.4k retained vs $63.1k baseline) with the highest number of churners avoided (51).**
-
-LightGBM had the best ROI per action (6.03×) but fewer total churners saved — better for constrained operations; Random Forest better for maximizing total retention.
-
-## 🧠 Explainability (SHAP)
-
-Top drivers of churn risk, in order of importance:
-
-1. **tenure** — shorter time as customer = highest risk
-2. **Contract type** — month-to-month contracts dominate high-risk group
-3. **MonthlyCharges** — higher bills with no lock-in = easier to justify leaving
-4. **OnlineSecurity / TechSupport** — absence of premium services = no switching cost
-5. **InternetService (Fiber)** — fiber customers are more demanding and have more alternatives
-
-SHAP waterfall plots allow the retention team to see **exactly why** each customer was flagged — enabling personalized outreach (e.g., offer contract upgrade vs. offer security bundle).
+**Random Forest, LightGBM and XGBoost are operationally equivalent** — all avoid ~86–87 churners and protect ~$6,500/month in MRR. Logistic Regression and SVM flag too few customers at this threshold to generate any retention impact. XGBoost was chosen because it was slightly better.
 
 ---
 
@@ -130,11 +119,11 @@ SHAP waterfall plots allow the retention team to see **exactly why** each custom
 | Item | Detail |
 |---|---|
 | **Save rate (30%)** | Assumed — no historical campaign data available |
-| **Cost per action ($15)** | Assumed — sensitivity analysis showed rankings stable from $10–$30 |
+| **Cost per action ($15)** | Assumed — sensitivity analysis recommended |
 | **No A/B test** | Business metrics are simulated, not causally validated |
-| **Static dataset** | No temporal ordering — walk-forward validation not applied |
+| **Threshold = 0.5** | Default — business-optimal threshold not yet tuned |
 | **Single cohort** | No seasonal effects or drift analysis |
-| **Threshold = 0.5** | Default threshold; business-optimal threshold not yet tuned |
+| **LR and SVM at threshold=0.5** | Both avoid zero churners — lowering threshold would change this |
 
 ---
 
@@ -143,14 +132,13 @@ SHAP waterfall plots allow the retention team to see **exactly why** each custom
 ### ✅ What worked
 - Stratified k-fold CV preserved the 26/74 class ratio reliably
 - `class_weight="balanced_subsample"` handled imbalance without SMOTE
-- Holdout set separation gave an honest estimate of business impact
-- Quantile analysis + lift curves made results tangible for non-technical stakeholders
+- Business simulation (MRR / LTV) revealed model differences invisible in PR-AUC
 
 ### ❌ What didn't work (and why)
-- **SMOTE**: tested but didn't improve validation metrics for a 26/74 imbalance — added complexity without benefit
-- **Feature selection (RFECV)**: PR-AUC plateau suggested the performance ceiling was data-driven, not feature noise
-- **LightGBM as final model**: higher PR-AUC masked low recall; misleading in a context where missing churners is costly
-- **Increasing model complexity**: all complex models converged to similar validation performance as Logistic Regression — no free lunch
+- **SMOTE**: tested but didn't improve validation metrics for a 26/74 imbalance
+- **Feature selection**: PR-AUC plateau confirmed the ceiling was data-driven, not feature noise
+- **LightGBM as final model**: moderate train/val gap; operationally equivalent to Random Forest but with more complexity
+- **Logistic Regression and SVM at threshold=0.5**: zero operational impact — precision too low to flag enough true positives
 
 ---
 
@@ -161,9 +149,10 @@ SHAP waterfall plots allow the retention team to see **exactly why** each custom
 │   └── WA_Fn-UseC_-Telco-Customer-Churn.csv
 ├── notebooks/
 │   ├── Data Analysis.ipynb
-│   └── Experiment - Predict_Churn or No Churn.ipynb
+│   └── Experiment - Predict Churn or No Churn.ipynb
 ├── src/
-│   ├── TODO: add files
+│   ├── data_collection.py
+|   └── data_preprocessing.py
 └── README.md
 ```
 
@@ -176,10 +165,11 @@ SHAP waterfall plots allow the retention team to see **exactly why** each custom
 ![LightGBM](https://img.shields.io/badge/LightGBM-4.x-green)
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.x-red)
 ![pandas](https://img.shields.io/badge/pandas-2.x-150458)
+![SHAP](https://img.shields.io/badge/SHAP-0.4x-blueviolet)
 
 ---
 
-## How to Run
+## 🚀 How to Run
 
 ```bash
 # Clone and install dependencies
@@ -196,11 +186,9 @@ jupyter notebook notebooks/Experiment_-_Predict_Churn_or_No_Churn.ipynb
 
 ---
 
-## Key Takeaway
+## 📌 Key Takeaways
 
-> **A well-tuned Random Forest, properly evaluated, can protect over $7,000/month in MRR that would otherwise be lost — with a 5.7× return on every dollar spent on retention.**
-
-The most important lesson from this project: **model complexity is not the bottleneck**. The data's predictive ceiling was reached by Logistic Regression. Everything else was about choosing the right model for the business context — not chasing the highest metric.
+> **XGBoost avoided 87 churners per cycle, protecting $6,700/month in MRR that would otherwise be lost.**
 
 ---
 
