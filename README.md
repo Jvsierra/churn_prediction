@@ -15,7 +15,6 @@ The goal was to build a model that **proactively identifies at-risk customers** 
 **Target KPIs:**
 - Reduce monthly churn rate
 - Protect MRR (Monthly Recurring Revenue)
-- Maximize ROI of retention campaigns
 
 ---
 
@@ -152,7 +151,10 @@ Evaluated on the last CV fold (holdout-equivalent). Retention simulation: 30% sa
 │   └── Experiment - Predict Churn or No Churn.ipynb
 ├── src/
 │   ├── data_collection.py
-|   └── data_preprocessing.py
+|   ├── data_preprocessing.py
+|   ├── feature_engineering.py
+|   ├── model.py
+|   └── pipeline.py
 └── README.md
 ```
 
@@ -181,7 +183,7 @@ pip install -r requirements.txt
 jupyter notebook notebooks/
 
 # Run full experiment
-jupyter notebook notebooks/Experiment_-_Predict_Churn_or_No_Churn.ipynb
+python -m src.pipeline
 ```
 
 ---

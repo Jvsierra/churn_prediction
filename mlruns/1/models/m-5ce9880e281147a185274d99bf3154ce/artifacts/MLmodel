@@ -1,0 +1,22 @@
+artifact_path: file:///C:/Users/JoaoSierra/OneDrive - Analytics2Go/Documentos/churn_prediction/mlruns/1/models/m-5ce9880e281147a185274d99bf3154ce/artifacts
+flavors:
+  python_function:
+    data: model.ubj
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.10.3
+  xgboost:
+    code: null
+    data: model.ubj
+    model_class: xgboost.core.Booster
+    model_format: ubj
+    xgb_version: 3.1.2
+mlflow_version: 3.12.0
+model_id: m-5ce9880e281147a185274d99bf3154ce
+model_size_bytes: 1014392
+model_uuid: m-5ce9880e281147a185274d99bf3154ce
+prompts: null
+run_id: bb87cbac60504098a9d48ebd74fea29c
+utc_time_created: '2026-05-31 02:00:40.980534'
