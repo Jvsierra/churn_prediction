@@ -1,5 +1,7 @@
 # 📉 Churn Prediction — Telecom B2C
 
+![Coverage](https://img.shields.io/badge/coverage-74%25-yellow)
+
 > **Can we identify customers about to leave — before they do?**
 
 A full-cycle machine learning project predicting customer churn for a B2C telecom company, from raw data exploration to business impact simulation.
@@ -155,6 +157,11 @@ Evaluated on the last CV fold (holdout-equivalent). Retention simulation: 30% sa
 |   ├── feature_engineering.py
 |   ├── model.py
 |   └── pipeline.py
+├── tests/
+│   ├── test_data_collection.py
+|   ├── test_data_preprocessing.py
+|   ├── test_feature_engineering.py
+|   └── test_pipeline.py
 └── README.md
 ```
 
@@ -181,6 +188,9 @@ pip install -r requirements.txt
 
 # Run EDA notebooks
 jupyter notebook notebooks/
+
+# Run tests
+pytest tests/ -v
 
 # Run full experiment
 python -m src.pipeline
