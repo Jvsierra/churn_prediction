@@ -39,6 +39,9 @@ def run_pipeline():
 
     df = get_input_data(DATA_PATH)
 
+    # Save customer IDs before dropping — needed to identify predictions later
+    customer_ids = df["customerID"].reset_index(drop=True)
+
     # Encode target
     y = (df[TARGET_COL] == "Yes").astype(int)
     X = df.drop(columns=DROP_COLS)
@@ -106,9 +109,7 @@ def run_pipeline():
         X=X_test_enc,
         feature_names=feature_names,
         threshold=THRESHOLD,
-        customer_ids=X_test.reset_index(drop=True).get(
-            "customerID", pd.Series(range(len(X_test)))
-        ),
+        customer_ids=customer_ids.iloc[X_test.index].reset_index(drop=True),
         monthly_charges=df.loc[X_test.index, "MonthlyCharges"].reset_index(drop=True),
         experiment_name=EXPERIMENT_NAME,
         run_name="xgboost-inference",
