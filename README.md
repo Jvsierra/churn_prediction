@@ -2,6 +2,8 @@
 
 ![Coverage](https://img.shields.io/badge/coverage-74%25-yellow)
 
+## **Check the live app [here](https://churnprediction-jc9httxkgp5fuhg6fz7gwb.streamlit.app/)**
+
 > **Can we identify customers about to leave — before they do?**
 
 A full-cycle machine learning project predicting customer churn for a B2C telecom company, from raw data exploration to business impact simulation.
