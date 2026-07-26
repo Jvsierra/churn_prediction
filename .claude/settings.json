@@ -6,7 +6,8 @@
       "Bash(python3 -c ' *)",
       "Bash(./.venv/Scripts/python.exe -c ' *)",
       "Bash(\"./.venv/Scripts/python.exe\" -m pip freeze)",
-      "Bash(\"./.venv/Scripts/python.exe\" -m pytest tests/ -q)"
+      "Bash(\"./.venv/Scripts/python.exe\" -m pytest tests/ -q)",
+      "Bash(\"./.venv/Scripts/python.exe\" --version)"
     ]
   }
 }
