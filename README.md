@@ -2,7 +2,7 @@
 
 ![Coverage](https://img.shields.io/badge/coverage-74%25-yellow)
 
-## **Check the live app [here](https://churnprediction-jc9httxkgp5fuhg6fz7gwb.streamlit.app/)**
+## **Check the live app [here](https://churnprediction-fx5msc9ziqxx8mvd2vafpg.streamlit.app/)**
 
 > **Can we identify customers about to leave — before they do?**
 
